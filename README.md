@@ -127,11 +127,11 @@ La misma secuencia de mediciones (`nanoTime` y `StopWatch`) se ejecuta automáti
 | Criterio | JDBC puro con PreparedStatement | Spring Data JPA + Hibernate |
 |---|---|---|
 | **Líneas de código** (repositorio + conexión / entidad) | 87 líneas (`Conexion.java` 14 + `ProductoRepositorioJdbc.java` 73) | 50 líneas (`Producto.java` 45 + `ProductoRepository.java` 5) |
-| **Tiempo del listado** (100 filas) | 23–49 ms (nanoTime) / 8–45 ms (StopWatch), medido en corridas distintas sobre dos máquinas diferentes — ver nota abajo | 80.4 ms (nanoTime, arranque en frío) / 5.0 ms (StopWatch, en caliente), medido en una corrida |
+| **Tiempo del listado** (100 filas) | 23–49 ms (nanoTime) / 8–45 ms (StopWatch), medido en corridas distintas sobre dos máquinas diferentes — ver nota abajo | 80–144 ms (nanoTime, arranque en frío) / 5–11 ms (StopWatch, en caliente), medido en dos máquinas distintas |
 | **Facilidad de mantenimiento** | SQL en cadenas Java; el mapeo `ResultSet` → objeto es código repetitivo (boilerplate) que hay que ajustar a mano ante cualquier cambio de esquema. | Hibernate mapea vía anotaciones; una interfaz de 2-3 líneas (`extends JpaRepository`) resuelve el CRUD completo. |
 | **Prevención de SQL Injection** | Se previene siempre que se use `PreparedStatement` con marcadores `?` y `setXxx()`; comprobado con el ataque `' OR '1'='1'` (100 filas en la versión insegura → 0 en la segura). | Se previene por defecto: Hibernate genera siempre `PreparedStatement` parametrizado, incluso en consultas derivadas como `findByNombre`. |
 
-> **Nota sobre la variabilidad de los tiempos:** el rango de JDBC puro (23–49 ms) corresponde a tres corridas independientes en dos equipos distintos, no a un único run. Los tiempos de listado dependen fuertemente del hardware, la carga del sistema en ese momento, y si es la primera consulta de la conexión (arranque en frío) o una posterior (en caliente tras el JIT warm-up de la JVM), tal como advierte la guía del taller. Para un reporte formal, corre la medición tres veces en tu propio equipo y reporta la mediana, indicando el hardware usado.
+> **Nota sobre la variabilidad de los tiempos:** los rangos de ambos módulos corresponden a corridas independientes en dos equipos distintos, no a un único run. Los tiempos de listado dependen fuertemente del hardware, la carga del sistema en ese momento, y si es la primera consulta de la conexión (arranque en frío) o una posterior (en caliente tras el JIT warm-up de la JVM / calentamiento de Hibernate y HikariCP), tal como advierte la guía del taller. Para un reporte formal, corre la medición tres veces en tu propio equipo y reporta la mediana, indicando el hardware usado.
 
 ## Flujo de Git/GitHub utilizado
 
